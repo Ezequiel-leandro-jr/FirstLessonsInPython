@@ -1,7 +1,6 @@
 #função saque
-def saque(*, saque, saldo, valor, extrato, numero_saques):
+def saque(*, saldo, valor, extrato, numero_saques):
     if numero_saques < 3:
-        while (valor > 500) or (valor <= 0) or (valor > saldo):
             if (valor > 500) and (valor <= saldo):
                 print("Limite de R$ 500.00 excedido! Tente novamente.")
                 return saldo, extrato, numero_saques
@@ -15,36 +14,41 @@ def saque(*, saque, saldo, valor, extrato, numero_saques):
                 return saldo, extrato, numero_saques
             else:
                 saldo -= valor
-                extrato += f"Saque                  R${saque:.2f}\n"
+                extrato += f"Saque                  R${valor:.2f}\n"
+
                 numero_saques += 1
+
                 print(f"""
-                Saque de R${saque:.2f} realizado com sucesso!
-                Saques restantes: {3 - numero_saques}
+                Saque de R${valor:.2f} realizado com sucesso!
+
+                limite de saque: 3
+                Saques realizados: {numero_saques}
                 
                 Saldo atual: R${saldo:.2f} """)
      
-                return saldo, extrato, numero_saques            
+                return saldo, extrato, numero_saques           
     else:
         print("Limite de n° de saques excedido!")
         return saldo, extrato, numero_saques
 
 #função deposito
-def deposito(saldo, valor, extrato, /, ):
+def deposito(saldo, valor, extrato, numero_depositos, /, ):
     if(valor < 0):
-        print('Valor invalido! Tente novamente.')
-        return saldo, extrato
+        print('\nValor invalido! Volte ao menu e tente novamente.')
+        return saldo, extrato, numero_depositos
     else:
         saldo += valor
         extrato += f"Deposito               R${valor:.2f}\n"
         numero_depositos += 1
+
         print(f"""
         Deposito de R${valor:.2f} realizado com sucesso!
         
         Saldo atual: R${saldo:.2f}""")
-        return saldo, extrato
+        return saldo, extrato, numero_depositos
         
 #função extrato
-def ext(saldo, numero_saques, numero_depositos, /, *, extrato):
+def ext(saldo, numero_depositos, /, *, numero_saques, extrato):
     print(f"""
             EXTRATO
     ******************************
@@ -52,8 +56,6 @@ def ext(saldo, numero_saques, numero_depositos, /, *, extrato):
     Saques realizados    {numero_saques}
     Depositos            {numero_depositos}
     -------------------------------""")
-    print(f"SALDO ANTERIOR        R$1320.00")
-    print("-------------------------------")
     print("\nNenhuma movimentacao realizada.\n" if not extrato else extrato)
     print("_______________________________")
     print(f"SALDO ATUAL           R${saldo:.2f}\n")
@@ -66,6 +68,7 @@ def cadastro(usuarios):
 
     if usuario:
         print('\nCPF ja cadastrado!')
+        return
     else:
         nome = input('Informe o nome completo: ')
         data_nascimento = input('Informe a data de nascimento (dd/mm/aaaa): ')
@@ -93,29 +96,29 @@ def criar_conta(agencia, numero_conta, usuarios):
 def listar_contas(contas):
     print("\nCONTAS:\n")
     for conta in contas:
-        lista = f"""
-        Agencia:        {conta[agencia]}
-        Conta Corrente: {conta[numero_conta]}
-        Titular:        {conta[usuario]}
+       linha = f"""
+        Agencia:        {conta['agencia']}
+        Conta Corrente: {conta['numero_conta']}
+        Titular:        {conta['usuario']['nome']}
         _____________________________________ """
+       print(linha)
 
 #módulo principal (main)
 def main():
     AGENCIA = "0001"
-    valor = 0
     saldo = 0
     numero_depositos = 0
-    numero_conta = 0
-    conta = {}
+    numero_saques = 0
     extrato = ""
     usuarios = []
     contas = []
     continuar = True
 
+
     while continuar == True:
 
-        op = int(input("""
-        ========MENU========
+        op = int(input("""\n
+        ========DIO BANK========
         1. Depositar
         2. Sacar
         3. Extrato
@@ -126,22 +129,16 @@ def main():
         ____________________
         => """))
 
-        if op === 1:
-            valor = float(input('Digite o valor do deposito: '))
-            saldo, extrato = deposito(saldo, valor, extrato)
+        if op == 1:
+            valor = float(input('\nDigite o valor do deposito: '))
+            saldo, extrato, numero_depositos = deposito(saldo, valor, extrato, numero_depositos)
         
-        elif op === 2:
-            valor = float(input('Digite o valor do saque: '))
-            saldo, extrato, numero_saques = sacar(
-                saque = saque, 
-                saldo = saldo, 
-                valor = valor, 
-                extrato = extrato, 
-                numero_saques = numero_saques,
-            )
+        elif op == 2:
+            valor = float(input('\nDigite o valor do saque: '))
+            saldo, extrato, numero_saques = saque(saldo = saldo, valor = valor, extrato = extrato, numero_saques = numero_saques)
         
         elif op == 3:
-            ext(saldo, numero_saques, numero_depositos, extrato)
+            ext(saldo, numero_depositos, numero_saques = numero_saques, extrato = extrato)
         
         elif op == 4:
             cadastro(usuarios)
@@ -158,9 +155,11 @@ def main():
         
         elif op == 0:
             continuar = False
-            break
         
         else:
-            print('Operacao invalida! Volte ao menu e tente novamente.')
+            print('\nOperacao invalida! Volte ao menu e tente novamente.')
+
+#chamando a função main
+main()
 
 
